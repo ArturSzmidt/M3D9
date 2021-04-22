@@ -1,0 +1,272 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/css/bootstrap.min.css"
+        integrity="sha384-B0vP5xmATw1+K9KRQjQERJvTumQW0nPEzvF6L/Z6nronJ3oUOFUFpCjEUQouq2+l" crossorigin="anonymous">
+
+    <title>Backoffice!</title>
+
+    <style>
+        input {
+            margin-bottom: 1em
+        }
+    </style>
+</head>
+
+<body>
+    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+        <a class="navbar-brand" href="#">Navbar</a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNavAltMarkup"
+            aria-controls="navbarNavAltMarkup" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
+            <div class="navbar-nav">
+                <a class="nav-link" href="index.html">Home</a>
+                <a class="nav-link active" href="#">Backoffice <span class="sr-only">(current)</span></a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="row">
+          <div class="col-10 col-md-6 mx-auto">
+            <h1 class="text-center my-5">Backoffice</h1>
+  
+            <form onsubmit="handleSubmit(event)">
+              <!-- 
+                          {
+                  "_id": "5d318e1a8541744830bef139", //SERVER GENERATED
+                  "name": "app test 1",  //REQUIRED
+                  "description": "somthing longer", //REQUIRED
+                  "brand": "nokia", //REQUIRED
+                  "imageUrl": "https://drop.ndtv.com/TECH/product_database/images/2152017124957PM_635_nokia_3310.jpeg?downsize=*:420&output-quality=80", //REQUIRED
+                  "price": 100, //REQUIRED
+                  "userId": "admin", //SERVER GENERATED
+                  "createdAt": "2019-07-19T09:32:10.535Z", //SERVER GENERATED
+                  "updatedAt": "2019-07-19T09:32:10.535Z", //SERVER GENERATED
+                  "__v": 0 //SERVER GENERATED
+                                                  // server-generated
+                          }    
+                      -->
+              <!--Event Name-->
+              <label>Event Name</label>
+              <input
+                id="name"
+                type="text"
+                class="form-control"
+                placeholder="Write here event name"
+              />
+  
+              <!--Event Description-->
+              <label>Event Description</label>
+              <input
+                id="description"
+                type="text"
+                class="form-control"
+                placeholder="Write here event description"
+              />
+  
+              <!--Event Price-->
+              <label>Event Price</label>
+              <input
+                id="price"
+                type="number"
+                class="form-control"
+                placeholder="Write here event price"
+              />
+              <!--Event Image-->
+              <label>Event Image</label>
+              <input
+                id="image"
+                type="text"
+                class="form-control"
+                placeholder="Write here event price"
+              />
+              <!--Event Price-->
+              <label>Event Brand</label>
+              <input
+                id="brand"
+                type="text"
+                class="form-control"
+                placeholder="Write here event price"
+              />
+  
+              <div class="d-flex">
+                <button type="submit" class="btn btn-primary w-50 mx-auto">Send</button>
+                <button type="button" class="btn btn-outline-dark">Delete</button>
+  
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+
+    <script>
+
+        const params = new URLSearchParams(location.search)
+        const id = params.get('id')
+
+        const endpoint =
+            id
+                ? "https://striveschool-api.herokuapp.com/api/product/" + id
+                : "https://striveschool-api.herokuapp.com/api/product/"
+
+        const method = id ? "PUT" : "POST"
+
+        const operation = document.querySelector("#operation")
+
+        window.onload = async () => {
+            console.log(id)
+
+            if (id) {
+                // operation.innerHTML = "Editing event"
+
+                try {
+                    const response = await fetch(endpoint, {
+                    method, // "GET", "POST", "PUT", "DELETE"
+                    headers: {
+                        "Content-Type": "application/json",
+                        "Authorization": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2MDgwMTIzMWIxZjBmYjAwMTVkOTE3M2QiLCJpYXQiOjE2MTkwMDYwMDEsImV4cCI6MTYyMDIxNTYwMX0.31YunNg4O4EXRP6vL1Z7YTJBHHf4DAl7_Hs1Jhu38lQ",
+                        // lets the server know what content we are sending in the body
+                    },})
+
+                    if (!response.ok) {
+                        if (response.status === 404) {
+                            location.assign("index.html")
+                            throw new Error("This event does not exist!")
+                            // go to catch block
+                        }
+                        throw new Error("Something went wrong with code " + response.status)
+                        // go to catch block
+                    }
+
+                    const event = await response.json()
+                    populateFields(event)
+
+                } catch (error) {
+                    console.log(error)
+                    alert(error.message)
+                    // from here, continue
+                }
+
+                // document.querySelector('#delete-btn').classList.remove("d-none")
+
+            } else {
+                operation.innerHTML = "Creating new event"
+            }
+        }
+
+        function populateFields(event) {
+            document.querySelector('#name').value = event.name
+            document.querySelector('#description').value = event.description
+            document.querySelector('#price').value = event.price
+            document.querySelector('#image').value = event.imageUrl
+            document.querySelector('#brand').value = event.brand
+
+            
+            
+        }
+
+        async function handleSubmit(event) {
+            event.preventDefault(); // prevents the default handling by the browser
+
+            // setLoading(true)
+
+            const newEvent = {
+          name: document.querySelector('#name').value,
+          description: document.querySelector('#description').value,
+          price: document.querySelector('#price').value,
+          imageUrl: document.querySelector('#image').value,
+          brand: document.querySelector('#brand').value,
+        };
+
+            console.log(newEvent)
+
+            try {
+                const response = await fetch(endpoint, {
+                    method, // "GET", "POST", "PUT", "DELETE"
+                    headers: {
+                        "Content-Type": "application/json",
+                        "Authorization": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2MDgwMTIzMWIxZjBmYjAwMTVkOTE3M2QiLCJpYXQiOjE2MTkwMDYwMDEsImV4cCI6MTYyMDIxNTYwMX0.31YunNg4O4EXRP6vL1Z7YTJBHHf4DAl7_Hs1Jhu38lQ",
+                        // lets the server know what content we are sending in the body
+                    },
+                    body: JSON.stringify(newEvent)
+                })
+
+                // What could possibly go wrong?
+                // - wrong keys
+                // - wrong endpoint
+                // - duplicate entry
+                // - wrong HTTP verb
+
+                if (!response.ok) {
+                    const data = await response.json()
+                    const code = data.error.code
+
+                    if (code === 11000) {
+                        throw new Error("This event already exists!")
+                    }
+                    else throw new Error("Failed to post")
+                }
+
+                const data = await response.json()
+
+                alert(`Event ${id ? "updated" : "added"} successfully with id ${data._id}`)
+                location.assign("index.html")
+
+            } catch (error) {
+                console.log(error)
+                alert(error.message)
+            } finally {
+                setLoading(false)
+            }
+
+        }
+
+        async function deleteEvent() {
+            setLoading(true)
+
+            try {
+                const response = await fetch(endpoint, { method: "DELETE" })
+                if (!response.ok) throw new Error("Something went wrong")
+
+                alert("Event deleted successfully")
+                location.assign("index.html")
+
+            } catch (error) {
+                console.log(error)
+                alert(error.message)
+            }
+
+            setLoading(false)
+
+        }
+
+        // function setLoading(loading) {
+        //     if (loading) {
+        //         document.querySelector("#spinner").classList.remove("d-none")
+        //     } else {
+        //         document.querySelector("#spinner").classList.add("d-none")
+        //     }
+        // }
+    </script>
+
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"
+        integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj"
+        crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-Piv4xVNRyMGpqkS2by6br4gNJ7DXjqk09RmUpJ8jgGtD7zP9yug3goQfGII0yAns"
+        crossorigin="anonymous"></script>
+
+    <script src="https://unpkg.com/ionicons@5.4.0/dist/ionicons.js"></script>
+
+</body>
+
+</html>
